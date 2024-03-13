@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sustainable Food Map</title>
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.26/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.26/"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        height: 100vh;
+      }
+      #viewDiv {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewDiv"></div>
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/LayerList",
+        "esri/layers/GeoJSONLayer",
+        "esri/widgets/Expand",
+      ], function (Map, MapView, LayerList, GeoJSONLayer, Expand) {
+        // Create a map
+        var map = new Map({
+          basemap: "streets-navigation-vector", // Use a basemap
+        });
+
+        // Create a view
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [-4.9, 50.47], // Set the center
+          zoom: 8, // Set the zoom level
+        });
+
+        view.when(() => {
+          const layerList = new LayerList({
+            view: view,
+          });
+
+          const bgExpand = new Expand({
+            view: view,
+            content: layerList,
+          });
+
+          // Add widget to the top right corner of the view
+          view.ui.add(bgExpand, "top-right");
+        });
+
+        //Country Boundary -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var countryUrl = "Country_boundary.geojson";
+
+        // Define the symbol for the country boundary
+        var country_symbol = {
+          type: "simple-fill",
+          color: [0, 0, 0, 0], // Transparent fill color
+          outline: {
+            color: [128, 128, 128, 0.7], // Gray outline color with 50% transparency
+            width: 2, // 4pt thickness
+          },
+        };
+
+        // Create a renderer for the GeoJSONLayer
+        var renderer = {
+          type: "simple",
+          symbol: country_symbol,
+        };
+
+        // Create a GeoJSONLayer
+        var country_boundary = new GeoJSONLayer({
+          url: countryUrl,
+          renderer: renderer,
+          title: "Country Boundary",
+        });
+
+        //Exisiting Links -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var exisiting_linksUrl = "Exisiting_links_farmers.geojson";
+
+        // Define the symbol for the country boundary
+        var exisiting_links_symbol = {
+          type: "simple-line",
+          color: [19, 144, 26, 0.7],
+          width: 2,
+        };
+
+        // Create a renderer for the GeoJSONLayer
+        var renderer = {
+          type: "simple",
+          symbol: exisiting_links_symbol,
+        };
+
+        // Create a GeoJSONLayer
+        var exisiting_links = new GeoJSONLayer({
+          url: exisiting_linksUrl,
+          renderer: renderer,
+          title: "Exisiting Links",
+        });
+
+        //Schools -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var schoolUrl = "Schools.geojson";
+
+        // Define the field that you want to use for unique symbology
+        var uniqueField = "catering_t"; // For example, if you have a "type" field in your GeoJSON data
+
+        // Define unique symbols for different attribute values
+        var renderer = {
+          type: "unique-value",
+          field: uniqueField,
+          defaultSymbol: {
+            type: "simple-marker",
+            color: [255, 255, 255, 0.8], // Default symbol for features with values not listed below
+            size: 10,
+          },
+          uniqueValueInfos: [
+            {
+              value: "In-house catering", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [0, 38, 115, 0.8],
+                size: 10,
+              },
+            },
+            {
+              value: "Private contracted caterer", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [0, 255, 255, 0.8], // Blue symbol for "Secondary" schools
+                size: 10,
+              },
+            },
+            {
+              value: "NHS Royal Cornwall Trust - Cornwall Food", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [132, 0, 168, 0.8], // Blue symbol for "Secondary" schools
+                size: 10,
+              },
+            },
+            // Add more uniqueValueInfos for each unique attribute value
+          ],
+        };
+
+        // Create a GeoJSONLayer
+        var schools = new GeoJSONLayer({
+          url: schoolUrl,
+          renderer: renderer,
+          title: "Schools",
+          popupTemplate: {
+            title: "{School_Nam}", // Set the title using an attribute from the GeoJSON properties
+            content: "Catering Type: <strong> {catering_t} </strong>", // Set the content using attributes from the GeoJSON properties
+          },
+        });
+
+        // Add the GeoJSONLayer to the map
+        map.add(country_boundary);
+        map.add(exisiting_links);
+        map.add(schools);
+
+        // Toggle layer on/off when checkbox is clicked
+        document
+          .getElementById("layerToggle")
+          .addEventListener("change", function (event) {
+            if (event.target.checked) {
+              // Add the layer to the map
+              map.add(country_boundary);
+            } else {
+              // Remove the layer from the map
+              map.remove(country_boundary);
+            }
+          });
+      });
+    </script>
+  </body>
+</html>

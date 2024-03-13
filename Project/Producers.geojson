@@ -1,0 +1,15 @@
+{
+"type": "FeatureCollection",
+"name": "Producers",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Name": "Bookers", "Latitude": 50.225736, "Longitude": -5.262367 }, "geometry": { "type": "Point", "coordinates": [ -5.262367, 50.225736 ] } },
+{ "type": "Feature", "properties": { "Name": "Scorse", "Latitude": 50.111729, "Longitude": -5.271234 }, "geometry": { "type": "Point", "coordinates": [ -5.271234, 50.111729 ] } },
+{ "type": "Feature", "properties": { "Name": "Brakes", "Latitude": 50.421295, "Longitude": -4.826835 }, "geometry": { "type": "Point", "coordinates": [ -4.826835, 50.421295 ] } },
+{ "type": "Feature", "properties": { "Name": "Bidfood", "Latitude": 50.386399, "Longitude": -3.95919 }, "geometry": { "type": "Point", "coordinates": [ -3.95919, 50.386399 ] } },
+{ "type": "Feature", "properties": { "Name": "Tamar Fresh", "Latitude": 50.415153, "Longitude": -4.23958 }, "geometry": { "type": "Point", "coordinates": [ -4.23958, 50.415153 ] } },
+{ "type": "Feature", "properties": { "Name": "Hunts Foodservice", "Latitude": 50.244229, "Longitude": -5.225274 }, "geometry": { "type": "Point", "coordinates": [ -5.225274, 50.244229 ] } },
+{ "type": "Feature", "properties": { "Name": "MJ Baker", "Latitude": 50.574776, "Longitude": -3.657984 }, "geometry": { "type": "Point", "coordinates": [ -3.657984, 50.574776 ] } },
+{ "type": "Feature", "properties": { "Name": "Diamond Disposables", "Latitude": 50.365876, "Longitude": -4.106978 }, "geometry": { "type": "Point", "coordinates": [ -4.106978, 50.365876 ] } }
+]
+}
