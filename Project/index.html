@@ -10,29 +10,6 @@
     />
     <script src="https://js.arcgis.com/4.26/"></script>
     <style>
-      @media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
-        /* Adjust padding to avoid the notch on iOS */
-        .content {
-          padding-top: constant(safe-area-inset-top); /* iOS */
-          padding-bottom: constant(safe-area-inset-bottom); /* iOS */
-          padding-left: constant(safe-area-inset-left); /* iOS */
-          padding-right: constant(safe-area-inset-right); /* iOS */
-          /* Or use the shorthand: padding: constant(safe-area-inset); */
-        }
-      }
-
-      /* For Android devices */
-      @media screen and (device-width: 360px) and (device-height: 760px) and (-webkit-device-pixel-ratio: 3) {
-        /* Adjust padding to avoid the notch on Android */
-        .content {
-          padding-top: constant(safe-area-inset-top); /* Android */
-          padding-bottom: constant(safe-area-inset-bottom); /* Android */
-          padding-left: constant(safe-area-inset-left); /* Android */
-          padding-right: constant(safe-area-inset-right); /* Android */
-          /* Or use the shorthand: padding: constant(safe-area-inset); */
-        }
-      }
-
       * {
         margin: 0;
         padding: 0;
@@ -57,6 +34,38 @@
         margin: 0;
         padding: 0;
         background-color: black;
+      }
+
+      @media (min-width: 768px) {
+        #viewDiv {
+          height: 100vh; /* Set height of viewDiv to 100% of viewport height */
+        }
+
+        .footer {
+          height: 0; /* Set height of footer to 0 */
+        }
+      }
+      @media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+        /* Adjust padding to avoid the notch on iOS */
+        .content {
+          padding-top: constant(safe-area-inset-top); /* iOS */
+          padding-bottom: constant(safe-area-inset-bottom); /* iOS */
+          padding-left: constant(safe-area-inset-left); /* iOS */
+          padding-right: constant(safe-area-inset-right); /* iOS */
+          /* Or use the shorthand: padding: constant(safe-area-inset); */
+        }
+      }
+
+      /* For Android devices */
+      @media screen and (device-width: 360px) and (device-height: 760px) and (-webkit-device-pixel-ratio: 3) {
+        /* Adjust padding to avoid the notch on Android */
+        .content {
+          padding-top: constant(safe-area-inset-top); /* Android */
+          padding-bottom: constant(safe-area-inset-bottom); /* Android */
+          padding-left: constant(safe-area-inset-left); /* Android */
+          padding-right: constant(safe-area-inset-right); /* Android */
+          /* Or use the shorthand: padding: constant(safe-area-inset); */
+        }
       }
     </style>
   </head>
