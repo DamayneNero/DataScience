@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sustainable Food Map</title>
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.26/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.26/"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        height: 100vh; /* Set body height to viewport height */
+        background-color: black;
+      }
+
+      #viewDiv {
+        height: 90%; /* Adjust height of the map container */
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .footer {
+        height: 10%; /* Adjust height of the footer */
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: black;
+      }
+
+      @media (min-width: 768px) {
+        #viewDiv {
+          height: 100vh; /* Set height of viewDiv to 100% of viewport height */
+        }
+
+        .footer {
+          height: 0; /* Set height of footer to 0 */
+        }
+      }
+      @media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+        /* Adjust padding to avoid the notch on iOS */
+        .content {
+          padding-top: constant(safe-area-inset-top); /* iOS */
+          padding-bottom: constant(safe-area-inset-bottom); /* iOS */
+          padding-left: constant(safe-area-inset-left); /* iOS */
+          padding-right: constant(safe-area-inset-right); /* iOS */
+          /* Or use the shorthand: padding: constant(safe-area-inset); */
+        }
+      }
+
+      /* For Android devices */
+      @media screen and (device-width: 360px) and (device-height: 760px) and (-webkit-device-pixel-ratio: 3) {
+        /* Adjust padding to avoid the notch on Android */
+        .content {
+          padding-top: constant(safe-area-inset-top); /* Android */
+          padding-bottom: constant(safe-area-inset-bottom); /* Android */
+          padding-left: constant(safe-area-inset-left); /* Android */
+          padding-right: constant(safe-area-inset-right); /* Android */
+          /* Or use the shorthand: padding: constant(safe-area-inset); */
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewDiv" class="content"></div>
+    <div class="footer"></div>
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/LayerList",
+        "esri/layers/GeoJSONLayer",
+        "esri/widgets/Expand",
+        "esri/widgets/Search",
+        "esri/widgets/Home",
+        "esri/widgets/Compass",
+        "esri/geometry/Point",
+      ], function (
+        Map,
+        MapView,
+        LayerList,
+        GeoJSONLayer,
+        Expand,
+        Search,
+        Home,
+        Compass,
+        Point
+      ) {
+        // Create a map
+        var map = new Map({
+          basemap: "topo-vector", // Use a basemap
+        });
+
+        // Create a view
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [-4.9, 50.47], // Set the center
+          zoom: 8, // Set the zoom level
+        });
+
+        const homeBtn = new Home({
+          view: view,
+        });
+        const compassWidget = new Compass({
+          view: view,
+        });
+
+        view.when(() => {
+          const layerList = new LayerList({
+            view: view,
+            listItemCreatedFunction: (event) => {
+              const item = event.item;
+              if (item.layer.type != "group") {
+                // don't show legend twice
+                item.panel = {
+                  content: "legend",
+                  open: true,
+                };
+              }
+            },
+          });
+
+          const bgExpand = new Expand({
+            view: view,
+            content: layerList,
+          });
+
+          // Add widget to the top right corner of the view
+          view.ui.add(bgExpand, "top-right");
+
+          view.ui.add(homeBtn, "bottom-right");
+          view.ui.add(compassWidget, "top-left");
+        });
+
+        //Country Boundary -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var countryUrl = "Country_boundary.geojson";
+
+        // Define the symbol for the country boundary
+        var country_symbol = {
+          type: "simple-fill",
+          color: [0, 0, 0, 0], // Transparent fill color
+          outline: {
+            color: [191, 204, 181, 1],
+            width: 2,
+          },
+        };
+
+        // Create a renderer for the GeoJSONLayer
+        var renderer = {
+          type: "simple",
+          symbol: country_symbol,
+        };
+
+        // Create a GeoJSONLayer
+        var country_boundary = new GeoJSONLayer({
+          url: countryUrl,
+          renderer: renderer,
+          title: "Country Boundary",
+        });
+
+        //Exisiting Links -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var exisiting_linksUrl = "Exisiting_links_farmers.geojson";
+
+        // Define the symbol for the country boundary
+        var exisiting_links_symbol = {
+          type: "simple-line",
+          color: [19, 100, 26, 1],
+          width: 0.5,
+        };
+
+        // Create a renderer for the GeoJSONLayer
+        var renderer = {
+          type: "simple",
+          symbol: exisiting_links_symbol,
+        };
+
+        // Create a GeoJSONLayer
+        var exisiting_links = new GeoJSONLayer({
+          url: exisiting_linksUrl,
+          renderer: renderer,
+          title: "Exisiting Links",
+          visible: false,
+          popupTemplate: {
+            content:
+              "Exisitng link between <strong>{School_Nam}</strong> & <strong>{Name}</strong>", // Set the title using an attribute from the GeoJSON properties
+          },
+        });
+
+        //ProximityLinks -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var proximity_linksUrl = "Proximity_Links.geojson";
+
+        // Define the symbol for the country boundary
+        var proximity_links_symbol = {
+          type: "simple-line",
+          color: [255, 0, 0, 1],
+          width: 0.5,
+        };
+
+        // Create a renderer for the GeoJSONLayer
+        var proximity_renderer = {
+          type: "simple",
+          symbol: proximity_links_symbol,
+        };
+
+        // Create a GeoJSONLayer
+        var proximity_links = new GeoJSONLayer({
+          url: proximity_linksUrl,
+          renderer: proximity_renderer,
+          title: "Proximity Links",
+          visible: false,
+          popupTemplate: {
+            content:
+              "Proximity link between <strong>{School_Nam}</strong> & <strong>{Name}</strong>", // Set the title using an attribute from the GeoJSON properties
+          },
+        });
+
+        //Optimal Links -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var optimal_linksUrl = "Optimised_Links.geojson";
+
+        // Define the symbol for the country boundary
+        var optimal_links_symbol = {
+          type: "simple-line",
+          color: [19, 200, 10, 1],
+          width: 0.5,
+        };
+
+        // Create a renderer for the GeoJSONLayer
+        var optimal_renderer = {
+          type: "simple",
+          symbol: optimal_links_symbol,
+        };
+
+        // Create a GeoJSONLayer
+        var optimal_links = new GeoJSONLayer({
+          url: optimal_linksUrl,
+          renderer: optimal_renderer,
+          title: "Optimal Links",
+          visible: false,
+          popupTemplate: {
+            content:
+              "Optimal link between <strong>{School_Nam}</strong> & <strong>{Name}</strong>", // Set the title using an attribute from the GeoJSON properties
+          },
+        });
+
+        //Schools -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var schoolUrl = "Schools.geojson";
+
+        // Define the field that you want to use for unique symbology
+        var uniqueField = "catering_t"; // For example, if you have a "type" field in your GeoJSON data
+
+        // Define unique symbols for different attribute values
+        var school_renderer = {
+          type: "unique-value",
+          field: uniqueField,
+          defaultSymbol: {
+            type: "simple-marker",
+            color: [255, 255, 255, 1], // Default symbol for features with values not listed below
+            size: 4,
+            outline: {
+              color: [0, 0, 0, 1], // Black outline color
+              width: 0.4, // Adjust the width of the outline as needed
+            },
+          },
+          uniqueValueInfos: [
+            {
+              value: "In-house catering", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [21, 114, 161, 1],
+                size: 10,
+                outline: {
+                  color: [0, 0, 0, 1], // Black outline color
+                  width: 0.4, // Adjust the width of the outline as needed
+                },
+              },
+            },
+            {
+              value: "Private contracted caterer", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [154, 208, 236, 1],
+                size: 10,
+                outline: {
+                  color: [0, 0, 0, 1], // Black outline color
+                  width: 0.4, // Adjust the width of the outline as needed
+                },
+              },
+            },
+            {
+              value: "NHS Royal Cornwall Trust - Cornwall Food", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [148, 156, 223, 1],
+                size: 10,
+                outline: {
+                  color: [0, 0, 0, 1], // Black outline color
+                  width: 0.4, // Adjust the width of the outline as needed
+                },
+              },
+            },
+            {
+              value: "Not Specified", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [255, 255, 255, 1],
+                size: 10,
+                outline: {
+                  color: [0, 0, 0, 1], // Black outline color
+                  width: 0.4, // Adjust the width of the outline as needed
+                },
+              },
+            },
+            // Add more uniqueValueInfos for each unique attribute value
+          ],
+        };
+
+        // Create a GeoJSONLayer
+        var schools = new GeoJSONLayer({
+          url: schoolUrl,
+          renderer: school_renderer,
+          title: "Schools",
+          popupTemplate: {
+            title: "School Name: {School_Nam}", // Set the title using an attribute from the GeoJSON properties
+            content:
+              "<strong> Catering Type:</strong>  {catering_t} <br /> <strong> Name of Caterer: </strong> {Caterer} <br/> <strong> Exisitng links (Producers):</strong> {Exisitng_l} <br /> <strong> Links by Proximity (Producers): </strong> {Proximity_} <br/> <strong> Optimal Links (Producers): </strong> {Optima_lin}", // Set the content using attributes from the GeoJSON properties
+          },
+        });
+
+        //Producers -----------------------------------------------
+        // Define the URL of the GeoJSON file
+        var producerUrl = "Producers.geojson";
+
+        // Define the field that you want to use for unique symbology
+        var uniqueField_producer = "Category"; // For example, if you have a "type" field in your GeoJSON data
+
+        // Define unique symbols for different attribute values
+        var renderer_producer = {
+          type: "unique-value",
+          field: uniqueField_producer,
+          defaultSymbol: {
+            type: "simple-marker",
+            color: [255, 255, 255, 0.8], // Default symbol for features with values not listed below
+            size: 4,
+          },
+          uniqueValueInfos: [
+            {
+              value: "Producer", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [165, 221, 155, 1],
+                size: 10,
+                outline: {
+                  color: [0, 0, 0, 1], // Black outline color
+                  width: 0.4, // Adjust the width of the outline as needed
+                },
+              },
+            },
+            {
+              value: "Distributor", // Unique attribute value
+              symbol: {
+                type: "simple-marker",
+                color: [97, 130, 100, 1], // Blue symbol for "Secondary" schools
+                size: 10,
+                outline: {
+                  color: [0, 0, 0, 1], // Black outline color
+                  width: 0.4, // Adjust the width of the outline as needed
+                },
+              },
+            },
+            // Add more uniqueValueInfos for each unique attribute value
+          ],
+        };
+
+        // Create a GeoJSONLayer
+        var producer = new GeoJSONLayer({
+          url: producerUrl,
+          renderer: renderer_producer,
+          title: "Producers",
+          popupTemplate: {
+            title: "Name of Producer: {Name}", // Set the title using an attribute from the GeoJSON properties
+            content:
+              "<strong>Category:</strong> {Category}  <br /> <strong> Food Supply: </strong>  {Supply}  <br /> <strong> Exisitng Links (Schools):</strong>  {Exisiting_}  <br /> <strong> Links by Proximity (Schools):</strong>  {Proximity_}  <br /> <strong>Optimal Links (Schools): </strong>  {Optimal_Li}",
+          },
+        });
+
+        // Add the GeoJSONLayer to the map
+        map.add(country_boundary);
+        map.add(optimal_links);
+        map.add(proximity_links);
+        map.add(exisiting_links);
+        map.add(producer);
+        map.add(schools);
+
+        // Create Search
+        const searchWidget = new Search({
+          view: view,
+          allPlaceholder: "School or Producer",
+          includeDefaultSources: false,
+          sources: [
+            {
+              layer: schools,
+              searchFields: ["School_Nam"],
+              displayField: "School_Nam",
+              exactMatch: false,
+              outFields: ["School_Nam", "catering_t"],
+              name: "School Name",
+              placeholder: "Pendeen Primary",
+            },
+            {
+              layer: producer,
+              searchFields: ["Name"],
+              displayField: "Name",
+              exactMatch: false,
+              outFields: ["Name", "Category"],
+              name: "Producer Name",
+              placeholder: "Soul Farm",
+            },
+          ],
+        });
+
+        view.ui.add(searchWidget, {
+          position: "top-right",
+        });
+      });
+    </script>
+  </body>
+</html>
