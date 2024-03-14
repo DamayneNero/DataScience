@@ -82,6 +82,7 @@
         "esri/widgets/Search",
         "esri/widgets/Home",
         "esri/widgets/Compass",
+        "esri/geometry/Point",
       ], function (
         Map,
         MapView,
@@ -90,7 +91,8 @@
         Expand,
         Search,
         Home,
-        Compass
+        Compass,
+        Point
       ) {
         // Create a map
         var map = new Map({
@@ -174,7 +176,7 @@
         var exisiting_links_symbol = {
           type: "simple-line",
           color: [19, 100, 26, 1],
-          width: 1,
+          width: 0.5,
         };
 
         // Create a renderer for the GeoJSONLayer
@@ -189,6 +191,10 @@
           renderer: renderer,
           title: "Exisiting Links",
           visible: false,
+          popupTemplate: {
+            content:
+              "Exisitng link between <strong>{School_Nam}</strong> & <strong>{Name}</strong>", // Set the title using an attribute from the GeoJSON properties
+          },
         });
 
         //ProximityLinks -----------------------------------------------
@@ -199,7 +205,7 @@
         var proximity_links_symbol = {
           type: "simple-line",
           color: [255, 0, 0, 1],
-          width: 1,
+          width: 0.5,
         };
 
         // Create a renderer for the GeoJSONLayer
@@ -214,6 +220,10 @@
           renderer: proximity_renderer,
           title: "Proximity Links",
           visible: false,
+          popupTemplate: {
+            content:
+              "Proximity link between <strong>{School_Nam}</strong> & <strong>{Name}</strong>", // Set the title using an attribute from the GeoJSON properties
+          },
         });
 
         //Optimal Links -----------------------------------------------
@@ -224,7 +234,7 @@
         var optimal_links_symbol = {
           type: "simple-line",
           color: [19, 200, 10, 1],
-          width: 1,
+          width: 0.5,
         };
 
         // Create a renderer for the GeoJSONLayer
@@ -239,6 +249,10 @@
           renderer: optimal_renderer,
           title: "Optimal Links",
           visible: false,
+          popupTemplate: {
+            content:
+              "Optimal link between <strong>{School_Nam}</strong> & <strong>{Name}</strong>", // Set the title using an attribute from the GeoJSON properties
+          },
         });
 
         //Schools -----------------------------------------------
